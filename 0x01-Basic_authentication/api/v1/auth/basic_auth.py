@@ -8,6 +8,7 @@ import base64
 import binascii
 from typing import TypeVar
 from models.user import User
+from flask import request
 
 
 class BasicAuth(Auth):
@@ -76,4 +77,27 @@ class BasicAuth(Auth):
         if not user.is_valid_password(user_pwd):
             return None
 
+        return user
+
+    def current_user(self, request=None) -> TypeVar('User'):
+        """Overloads Auth and retrieves the User instance for a request
+        """
+        if request is None:
+            return None
+
+        authorization_header = self.authorization_header(request)
+        if authorization_header is None:
+            return None
+
+        base64_auth_header = self.extract_base64_authorization_header(
+                authorization_header)
+        if base64_auth_header is None:
+            return None
+
+        user_email, user_pwd = self.extract_user_credentials(
+                base64_auth_header)
+        if user_email is None or user_pwd is None:
+            return None
+
+        user = self.user_object_from_credentials(user_email, user_pwd)
         return user

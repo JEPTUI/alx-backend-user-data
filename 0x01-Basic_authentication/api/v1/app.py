@@ -16,32 +16,11 @@ CORS(app, resources={r"/api/v1/*": {"origins": "*"}})
 
 
 auth = None
-auth_type = os.environ.get('AUTH_TYPE')
-if auth_type == 'basic_auth':
-    from api.v1.auth.basic_auth import BasicAuth
-    auth = BasicAuth()
-else:
-    from api.v1.auth.auth import Auth
-    auth = Auth()
 
-
-@app.before_request
-def before_request():
-    """Handles authorization
-    """
-    if auth is None:
-        return
-
-    allowed_paths = [
-            '/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
-    if request.path in allowed_paths:
-        return
-
-    if auth.authorization_header(request) is None:
-        abort(401)
-
-    if auth.current_user(request) is None:
-        abort(403)
+if "AUTH_TYPE" in os.environ:
+    if os.environ["AUTH_TYPE"] == "basic_auth":
+        from api.v1.auth.basic_auth import BasicAuth
+        auth = BasicAuth()
 
 
 @app.errorhandler(404)
@@ -63,6 +42,25 @@ def access_forbidden(error) -> str:
     """ Forbidden  handler
     """
     return jsonify({"error": "Forbidden"}), 403
+
+
+@app.before_request
+def before_request():
+    """Handles authorization
+    """
+    if auth is None:
+        return
+
+    allowed_paths = [
+            '/api/v1/status/', '/api/v1/unauthorized/', '/api/v1/forbidden/']
+    if request.path in allowed_paths:
+        return
+
+    if auth.authorization_header(request) is None:
+        abort(401)
+
+    if auth.current_user(request) is None:
+        abort(403)
 
 
 if __name__ == "__main__":

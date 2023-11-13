@@ -122,7 +122,8 @@ def update_user(user_id: str = None) -> str:
     return jsonify(user.to_json()), 200
 
 
-@app_views.route('/api/v1/users/<user_id>', methods=['GET'], strict_slashes=False)
+@app_views.route(
+        '/api/v1/users/<user_id>', methods=['GET'], strict_slashes=False)
 def get_user(user_id):
     """ get the authenticated User"""
     if user_id == 'me':

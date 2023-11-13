@@ -6,6 +6,7 @@
 from api.v1.auth.auth import Auth
 import uuid
 from api.v1.views.users import User
+from api.v1.views.session_auth import *
 
 
 class SessionAuth(Auth):

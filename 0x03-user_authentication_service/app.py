@@ -50,6 +50,8 @@ def login():
 
 @app.route('/sessions', methods=['DELETE'])
 def logout():
+    """Logout function
+    """
     session_id = request.cookies.get('session_id')
 
     user = AUTH.get_user_from_session_id(session_id)
@@ -58,6 +60,19 @@ def logout():
         AUTH.destroy_session(user.id)
 
         return redirect('/')
+    else:
+        abort(403)
+
+
+@app.route('/profile', methods=['GET'])
+def profile():
+    """Implements profile function
+    """
+    session_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+
+    if user:
+        return jsonify({"email": user.email}), 200
     else:
         abort(403)
 

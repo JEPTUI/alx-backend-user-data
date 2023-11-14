@@ -62,21 +62,14 @@ class DB:
         """
         try:
             user = self._session.query(User).filter_by(**kwargs).first()
+
             if user is None:
-                raise NoResultFound(
-                        "No user found with the specified criteria")
+                raise NoResultFound("No user found")
             return user
-        except NoResultFound:
-            raise
+        except NoResultFound as e:
+            raise e
         except InvalidRequestError as e:
-            self._session.rollback()
-            if "No user found" in str(e):
-                raise NoResultFound(
-                        "No user found with the specified criteria") from e
-            else:
-                raise InvalidRequestError(f"Invalid query arguments: {str(e)}")
-        finally:
-            self._session.close()
+            raise InvalidRequestError("Invalid query") from e
 
     def update_user(self, user_id: int, **kwargs) -> None:
         """Update user attributes in the database
@@ -90,17 +83,15 @@ class DB:
         """
         try:
             user = self.find_user_by(id=user_id)
+
             for key, value in kwargs.items():
-                if hasattr(user, key):
+                if hasattr(User, key):
                     setattr(user, key, value)
                 else:
-                    raise ValueError(f"Invalid argument: {key}")
+                    raise ValueError(f"Invalid attribute: {key}")
+
             self._session.commit()
-        except NoResultFound:
-            print("User not found")
-            raise
-        except MultipleResultsFound:
-            print("Multiple users found with the same ID")
-            raise
-        finally:
-            self._session.close()
+        except NoResultFound as e:
+            raise e
+        except InvalidRequestError as e:
+            raise InvalidRequestError("Invalid query") from e

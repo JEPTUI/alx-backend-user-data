@@ -11,11 +11,15 @@ AUTH = Auth()
 
 @app.route('/')
 def welcome():
+    """Flask app GET method
+    """
     return jsonify({"message": "Bienvenue"})
 
 
 @app.route('/users', methods=['POST'])
 def register_user():
+    """Register users
+    """
     try:
         email = request.form.get('email')
         password = request.form.get('password')

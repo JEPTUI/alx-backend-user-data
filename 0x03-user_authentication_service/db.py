@@ -66,12 +66,10 @@ class DB:
                         "No user found with the specified criteria")
             return user
         except NoResultFound:
-            print("Not found")
             raise
         except InvalidRequestError as e:
             self._session.rollback()
             if "No user found" in str(e):
-                print("Not found")
                 raise NoResultFound(
                         "No user found with the specified criteria") from e
             else:

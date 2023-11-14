@@ -6,6 +6,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import NoResultFound, InvalidRequestError
+from sqlalchemy.orm.exc import MultipleResultsFound
 from user import User
 from user import Base
 
@@ -74,5 +75,32 @@ class DB:
                         "No user found with the specified criteria") from e
             else:
                 raise InvalidRequestError(f"Invalid query arguments: {str(e)}")
+        finally:
+            self._session.close()
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """Update user attributes in the database
+
+        Args:
+            user_id (int): ID of the user to update
+            **kwargs: Arbitrary keyword arguments for updating user attributes
+
+        Raises:
+            ValueError: If an invalid argument is passed
+        """
+        try:
+            user = self.find_user_by(id=user_id)
+            for key, value in kwargs.items():
+                if hasattr(user, key):
+                    setattr(user, key, value)
+                else:
+                    raise ValueError(f"Invalid argument: {key}")
+            self._session.commit()
+        except NoResultFound:
+            print("User not found")
+            raise
+        except MultipleResultsFound:
+            print("Multiple users found with the same ID")
+            raise
         finally:
             self._session.close()

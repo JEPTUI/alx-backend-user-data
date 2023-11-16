@@ -81,17 +81,11 @@ class DB:
         Raises:
             ValueError: If an invalid argument is passed
         """
-        try:
-            user = self.find_user_by(id=user_id)
-
+        user = self.find_user_by(id=user_id)
+        session = self._session
+        if kwargs and any(k in FIELDS for k in kwargs):
             for key, value in kwargs.items():
-                if hasattr(User, key):
-                    setattr(user, key, value)
-                else:
-                    raise ValueError(f"Invalid attribute: {key}")
-
-            self._session.commit()
-        except NoResultFound as e:
-            raise e
-        except InvalidRequestError as e:
-            raise InvalidRequestError("Invalid query") from e
+                setattr(user, key, value)
+            session.commit()
+        else:
+            raise ValueError

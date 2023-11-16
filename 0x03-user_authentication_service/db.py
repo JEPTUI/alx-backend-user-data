@@ -7,8 +7,11 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
 from sqlalchemy.exc import NoResultFound, InvalidRequestError
 from sqlalchemy.orm.exc import MultipleResultsFound
+
 from user import User
 from user import Base
+
+FIELDS = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
 
 
 class DB:
@@ -60,16 +63,13 @@ class DB:
             NoResultFound: If no results are found
             InvalidRequestError: If wrong query arguments are passed
         """
+        if not kwargs or any(k not in FIELDS for k in kwargs):
+            raise InvalidRequestError
+        session = self._session
         try:
-            user = self._session.query(User).filter_by(**kwargs).first()
-
-            if user is None:
-                raise NoResultFound("No user found")
-            return user
-        except NoResultFound as e:
-            raise e
-        except InvalidRequestError as e:
-            raise InvalidRequestError("Invalid query") from e
+            return session.query(User).filter_by(**kwargs).one()
+        except NoResultFound:
+            raise NoResultFound
 
     def update_user(self, user_id: int, **kwargs) -> None:
         """Update user attributes in the database

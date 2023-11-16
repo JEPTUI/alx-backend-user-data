@@ -8,6 +8,22 @@ from db import DB
 from user import User
 
 
+def _hash_password(self, password: str) -> bytes:
+    """Hash the input password using bcrypt.hashpw
+    """
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
+
+    return hashed_password
+
+
+def _generate_uuid(self) -> str:
+    """Generate and return a string representation of a new UUID
+    """
+    new_uuid = uuid.uuid4()
+    return str(new_uuid)
+
+
 class Auth:
     """Auth class to interact with the authentication database.
     """
@@ -16,14 +32,6 @@ class Auth:
         """Initializes auth class
         """
         self._db = DB()
-
-    def _hash_password(self, password: str) -> bytes:
-        """Hash the input password using bcrypt.hashpw
-        """
-        salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-
-        return hashed_password
 
     def register_user(self, email: str, password: str) -> User:
         """Register a new user and return the User object
@@ -46,12 +54,6 @@ class Auth:
                     password.encode('utf-8'), user.hashed_password)
         except NoResultFound:
             return False
-
-    def _generate_uuid(self) -> str:
-        """Generate and return a string representation of a new UUID
-        """
-        new_uuid = uuid.uuid4()
-        return str(new_uuid)
 
     def create_session(self, email: str) -> str:
         """Create a new session for the user and return the session ID

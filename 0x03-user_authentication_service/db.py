@@ -10,7 +10,7 @@ from sqlalchemy.orm.exc import MultipleResultsFound
 from user import User
 from user import Base
 
-FIELDS = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
+# FIELDS = ['id', 'email', 'hashed_password', 'session_id', 'reset_token']
 
 
 class DB:
